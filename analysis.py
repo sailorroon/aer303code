@@ -11,6 +11,10 @@ import pandas as pd
 from scipy.optimize import brentq
 from scipy.signal import correlate
 
+# CHANGE IT TO CURRENT DIRECTORY IF RUNNING
+DEFAULT_DATA_FOLDER = Path(
+    r"C:\Users\roone\Downloads\Group07\Group07"
+)
 
 # ---------------------------------------------------------------------------
 # Experimental constants and file locations
@@ -33,11 +37,6 @@ PITOT_CHANNEL = PORT_TO_CHANNEL[12]
 # Offset recordings.
 BEFORE_NAME = "supersonic_Port07_offset_before_0.dat"
 AFTER_NAME = "subsonic_Port01_offset_after_0.dat"
-
-# Default data directory requested by the user.
-DEFAULT_DATA_FOLDER = Path(
-    r"C:\Users\roone\Downloads\Group07\Group07"
-)
 
 # All supplied geometry rows, including the two unnumbered upstream rows
 # and the two downstream rows.
