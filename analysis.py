@@ -1037,6 +1037,7 @@ def main():
                 port8_pitot_location_rows.append({
                     "regime": regime,
                     "pitot_tube_location": station,
+                    "pitot_x_mm": TAP_X_MM[station],
                     "p_static_port8_kPa": port8_result["pressure_pa"] / 1000.0,
                     "u_p_static_port8_total_kPa": (
                         port8_result["total_uncertainty_pa"] / 1000.0
@@ -1276,7 +1277,7 @@ def main():
         port8_pitot_location_results = pd.DataFrame(port8_pitot_location_rows)
 
         # Prepare the requested two-regime table for port 8, with each row
-        # representing the physical port where the pitot tube was located.
+        # representing the tap x position where the pitot tube was located.
         port8_table = (
             port8_pitot_location_results
             .pivot(index="pitot_tube_location", columns="regime",
@@ -1293,7 +1294,7 @@ def main():
         port8_table.insert(
             1,
             "Pitot tube location",
-            port8_table["pitot_tube_location"].map(lambda port: f"Port {port}"),
+            port8_table["pitot_tube_location"].map(TAP_X_MM),
         )
         port8_table = port8_table[[
             "Pitot tube location", "P_subsonic_kPa", "u_P_subsonic_kPa",
@@ -1501,7 +1502,8 @@ def main():
         plt.close(fig)
 
         # Requested port 8 pressure comparison: plot only the seven individual
-        # points per regime, with total pressure uncertainty as vertical bars.
+        # points per regime aligned with the tap x position, with total pressure
+        # uncertainty as vertical bars.
         fig, axis = plt.subplots(figsize=(9, 5.5))
         plot_styles = {
             "subsonic": {"marker": "o", "color": "tab:blue"},
@@ -1510,21 +1512,20 @@ def main():
         for regime in ("subsonic", "supersonic"):
             subset = port8_pitot_location_results[
                 port8_pitot_location_results["regime"] == regime
-            ].sort_values("pitot_tube_location")
+            ].sort_values("pitot_x_mm")
             style = plot_styles[regime]
             axis.errorbar(
-                subset["pitot_tube_location"],
+                subset["pitot_x_mm"],
                 subset["p_static_port8_kPa"],
                 yerr=subset["u_p_static_port8_total_kPa"],
                 marker=style["marker"],
                 color=style["color"],
-                linestyle="none",
+                linestyle="-",
                 capsize=4,
                 label=f"{regime.title()} pressure at port 8",
             )
 
-        axis.set_xticks(range(1, 8), [f"Port {port}" for port in range(1, 8)])
-        axis.set_xlabel("Pitot tube location")
+        axis.set_xlabel("Pitot tube location [mm]")
         axis.set_ylabel("Static pressure at port 8, p (kPa)")
         axis.set_title("Port 8 Static Pressure vs. Pitot Tube Location")
         axis.grid(True, alpha=0.3)
